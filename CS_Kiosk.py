@@ -4,7 +4,6 @@ import glob
 import logging
 import pygame
 from sys import exit
-import time
 
 # Define constants
 BLACK = (0, 0, 0)
@@ -17,16 +16,19 @@ SCREEN_TITLE = "Computer Science Department at EKU"
 pygame.init()
 logging.basicConfig(filename="logs/screen_click.log", level=logging.DEBUG)
 
+program_start = datetime.datetime.now()
+logging.info("\nProgram started: " + str(program_start))
+
 slides_list = glob.glob('images\slides\*.jpg')
 logging.info(slides_list)
 
 next_slide = 0
 
-program_start = datetime.datetime.now()
-logging.info("\nProgram started: " + str(program_start))
-
 screen = pygame.display.set_mode(SCREEN_SIZE, pygame.FULLSCREEN)
 pygame.display.set_caption(SCREEN_TITLE)
+
+start_slide = pygame.image.load('images/slides/start_slide.jpg')
+screen.blit(start_slide, [0, 0])
 
 presentation_mode = 'slideshow'
 
@@ -51,26 +53,37 @@ def set_background():
     background = pygame.image.load(background_image_filename).convert()
     screen.blit(background, (0,0))
 
-def get_slide(next_slide, slides_list):
-    if next_slide == len(slides_list):
-        next_slide = 0
-    slide_filename = slides_list[next_slide]
-    slide = pygame.image.load(slide_filename).convert()
-    screen.blit(slide, (0, 0))
-    return next_slide + 1
+def get_slide(next_slide, slides_list, since_refresh, tds):
+    refresh_time = since_refresh + datetime.timedelta(seconds=tds)
+    logging.info("Refresh time: " + str(refresh_time))
+    now = datetime.datetime.now()
+    logging.info("Current time:" + str(now))
+    if now > refresh_time:
+        logging.info("Refresh slide")
+        since_refresh = now
+        if next_slide >= len(slides_list):
+            next_slide = 0
+        slide_filename = slides_list[next_slide]
+        slide = pygame.image.load(slide_filename).convert()
+        screen.blit(slide, (0, 0))
+        return_packet = (next_slide + 1, since_refresh)
+        logging.info("Return packet includes " + str(return_packet))
+        return (next_slide + 1, since_refresh)
+    else:
+        return (next_slide, since_refresh)
 
-def update_inner_monitor(section_request):
-    kiosk_slides = ['images/slides/jumbo.jpg',
-                    'images/slides/gray.jpg',
-                    'images/slides/color_change.jpg',
-                    'images/slides/green.jpg'
+def update_kiosk(section_request):
+    kiosk_slides = ['images/kiosk_slides/directory.jpg',
+                    'images/kiosk_slides/events.jpg',
+                    'images/kiosk_slides/programs.jpg',
+                    'images/kiosk_slides/clubs.jpg'
                    ]
     if section_request == 1:
-        slide_filename = slides_list[0]
+        slide_filename = kiosk_slides[0]
     elif section_request == 2:
-        slide_filename = slides_list[1]
+        slide_filename = kiosk_slides[1]
     else:
-        slide_filename = slides_list[2]
+        slide_filename = kiosk_slides[2]
     slide = pygame.image.load(slide_filename).convert()
     screen.blit(slide, (110, 115))
 
@@ -81,6 +94,7 @@ done = False
 clock = pygame.time.Clock()
 key_value = 0
 inner_slide = 1
+since_refresh = datetime.datetime.now()
 
 # ----- Main Program Loop ------
 while not done:
@@ -90,11 +104,11 @@ while not done:
             logging.info("Key: {} pressed".format(event.key))
             if event.key == 27:
                 pquit()
-        elif presentation_mode == 'slideshow':
-            if event.type == pygame.MOUSEBUTTONDOWN:
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if presentation_mode == 'slideshow':
                 presentation_mode = 'kiosk'
-        elif presentation_mode == 'kiosk':
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            elif presentation_mode == 'kiosk':
                 mousex, mousey = event.pos
                 logging.info("The mouse coordinates were "
                              "({}, {}).".format(mousex, mousey))
@@ -113,16 +127,17 @@ while not done:
                 elif 1317 <= mousex <= 1349 and 949 <= mousey <= 981:
                     pquit()
 
-    screen.fill(WHITE)
+    # update display
+    #screen.fill(WHITE)
     
     if presentation_mode == 'slideshow':
-        next_slide = get_slide(next_slide, slides_list)
-        time.sleep(4)
+        next_slide, since_refresh = get_slide(next_slide, slides_list, since_refresh, 10)
     else:
         set_background()
-        update_inner_monitor(inner_slide)
+        update_kiosk(inner_slide)
 
 
     pygame.display.flip()
     clock.tick(60)
+
 pquit()
