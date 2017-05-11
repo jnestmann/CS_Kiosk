@@ -17,7 +17,7 @@ pygame.init()
 logging.basicConfig(filename="logs/screen_click.log", level=logging.DEBUG)
 
 program_start = datetime.datetime.now()
-logging.info("\nProgram started: " + str(program_start))
+logging.info("Program started: " + str(program_start))
 
 slides_list = glob.glob('images\slideshow_slides\*.jpg')
 logging.info(slides_list)
@@ -27,7 +27,7 @@ next_slide = 0
 screen = pygame.display.set_mode(SCREEN_SIZE, pygame.FULLSCREEN)
 pygame.display.set_caption(SCREEN_TITLE)
 
-start_slide = pygame.image.load('images/slideshow_slides/start_slide.jpg')
+start_slide = pygame.image.load('images/start_slide.jpg')
 screen.blit(start_slide, [0, 0])
 
 presentation_mode = 'slideshow'
@@ -76,17 +76,20 @@ def get_slide(next_slide, slides_list, since_refresh, tds):
 
 
 def update_kiosk(section_request):
-    kiosk_slides = ['images/kiosk_slides/directory.jpg',
+    kiosk_slides = ['images/kiosk_slides/start.jpg',
+                    'images/kiosk_slides/directory.jpg',
                     'images/kiosk_slides/events.jpg',
                     'images/kiosk_slides/programs.jpg',
                     'images/kiosk_slides/clubs.jpg'
                    ]
-    if section_request == 1:
+    if section_request == 0:
         slide_filename = kiosk_slides[0]
-    elif section_request == 2:
+    elif section_request == 1:
         slide_filename = kiosk_slides[1]
-    else:
+    elif section_request == 2:
         slide_filename = kiosk_slides[2]
+    else:
+        slide_filename = kiosk_slides[3]
     slide = pygame.image.load(slide_filename).convert()
     screen.blit(slide, (110, 115))
 
@@ -111,6 +114,7 @@ while not done:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if presentation_mode == 'slideshow':
                 presentation_mode = 'kiosk'
+                inner_slide = 0
             elif presentation_mode == 'kiosk':
                 mousex, mousey = event.pos
                 logging.info("The mouse coordinates were "
@@ -130,9 +134,7 @@ while not done:
                 elif 1317 <= mousex <= 1349 and 949 <= mousey <= 981:
                     pquit()
 
-    # update display
-    #screen.fill(WHITE)
-    
+
     if presentation_mode == 'slideshow':
         next_slide, since_refresh = get_slide(next_slide, slides_list, since_refresh, 10)
     else:
