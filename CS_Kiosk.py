@@ -19,7 +19,7 @@ logging.basicConfig(filename="logs/screen_click.log", level=logging.DEBUG)
 program_start = datetime.datetime.now()
 logging.info("\nProgram started: " + str(program_start))
 
-slides_list = glob.glob('images\slides\*.jpg')
+slides_list = glob.glob('images\slideshow_slides\*.jpg')
 logging.info(slides_list)
 
 next_slide = 0
@@ -27,7 +27,7 @@ next_slide = 0
 screen = pygame.display.set_mode(SCREEN_SIZE, pygame.FULLSCREEN)
 pygame.display.set_caption(SCREEN_TITLE)
 
-start_slide = pygame.image.load('images/slides/start_slide.jpg')
+start_slide = pygame.image.load('images/slideshow_slides/start_slide.jpg')
 screen.blit(start_slide, [0, 0])
 
 presentation_mode = 'slideshow'
@@ -71,6 +71,9 @@ def get_slide(next_slide, slides_list, since_refresh, tds):
         return (next_slide + 1, since_refresh)
     else:
         return (next_slide, since_refresh)
+    # slide_filename = slides_list[next_slide]
+    # slide= pygame.image.load(slide_filename).convert()
+
 
 def update_kiosk(section_request):
     kiosk_slides = ['images/kiosk_slides/directory.jpg',
