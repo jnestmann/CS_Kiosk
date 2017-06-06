@@ -32,11 +32,13 @@ screen.blit(start_slide, [0, 0])
 
 presentation_mode = 'slideshow'
 
+
 def pquit():
     program_end = datetime.datetime.now()
     logging.info("Program ended normally at " + str(program_end))
     pygame.quit()
     exit()
+
 
 def draw_inner_monitor(set_inner_monitor):
     if set_inner_monitor == 0:
@@ -44,14 +46,16 @@ def draw_inner_monitor(set_inner_monitor):
     elif set_inner_monitor == 1:
         new_display_image = 'images/gray.jpg'
         new_display = pygame.image.load(new_display_image).convert()
-        screen.blit(new_display, (110,63))
+        screen.blit(new_display, (110, 63))
     else:
         pass
+
 
 def set_background():
     background_image_filename = 'images/metalic_background.jpg'
     background = pygame.image.load(background_image_filename).convert()
-    screen.blit(background, (0,0))
+    screen.blit(background, (0, 0))
+
 
 def get_slide(next_slide, slides_list, since_refresh, tds):
     refresh_time = since_refresh + datetime.timedelta(seconds=tds)
@@ -71,8 +75,9 @@ def get_slide(next_slide, slides_list, since_refresh, tds):
         return (next_slide + 1, since_refresh)
     else:
         return (next_slide, since_refresh)
-    # slide_filename = slides_list[next_slide]
-    # slide= pygame.image.load(slide_filename).convert()
+        # slide_filename = slides_list[next_slide]
+        # slide= pygame.image.load(slide_filename).convert()
+
 
 
 def update_kiosk(section_request):
@@ -81,7 +86,7 @@ def update_kiosk(section_request):
                     'images/kiosk_slides/events.jpg',
                     'images/kiosk_slides/programs.jpg',
                     'images/kiosk_slides/clubs.jpg'
-                   ]
+                    ]
     if section_request == 0:
         slide_filename = kiosk_slides[0]
     elif section_request == 1:
@@ -90,8 +95,10 @@ def update_kiosk(section_request):
         slide_filename = kiosk_slides[2]
     else:
         slide_filename = kiosk_slides[3]
+
     slide = pygame.image.load(slide_filename).convert()
-    screen.blit(slide, (110, 115))
+    screen.blit(slide, (110, 105))
+
 
 # Loop until the user clicks the close button.
 done = False
@@ -101,6 +108,7 @@ clock = pygame.time.Clock()
 key_value = 0
 inner_slide = 1
 since_refresh = datetime.datetime.now()
+seconds_between_slides = 8
 
 # ----- Main Program Loop ------
 while not done:
@@ -129,18 +137,16 @@ while not done:
                     inner_slide = 3
                 elif 1519 <= mousex <= 1637 and 744 <= mousey <= 867:
                     inner_slide = 4
-                elif 1317 <= mousex <=1473 and 401 <= mousey <= 448:
+                elif 1317 <= mousex <= 1473 and 401 <= mousey <= 448:
                     presentation_mode = 'slideshow'
                 elif 1317 <= mousex <= 1349 and 949 <= mousey <= 981:
                     pquit()
 
-
     if presentation_mode == 'slideshow':
-        next_slide, since_refresh = get_slide(next_slide, slides_list, since_refresh, 10)
+        next_slide, since_refresh = get_slide(next_slide, slides_list, since_refresh, seconds_between_slides)
     else:
         set_background()
         update_kiosk(inner_slide)
-
 
     pygame.display.flip()
     clock.tick(60)
